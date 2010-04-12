@@ -16,11 +16,10 @@ t=$$t
 include Makefile.conf
 TXPATH=${TESTENV}/textpattern
 
-# Generate a test environment that can be used for testing the plugin and the
-# pygments CGI.  In order to use this target you must configure Makefile.conf
-# to provide user credentials for your local MYSQL database. Make sure that the
-# SQL user has access to the test database only.  The database must already
-# exist.
+# Generate a test environment that can be used for testing the plugin. In order
+# to use this target you must configure Makefile.conf to provide user credentials
+# for your local MYSQL database. Make sure that the SQL user has access to the
+# test database only.  The database must already exist.
 .PHONY: test-env
 test-env:
 	# Install textpattern
@@ -43,13 +42,9 @@ test-env:
 	# Populate database
 	mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME} < src/txp.sql
 
-# Installs the plugin into the textpattern installation and copies the python
-# CGI to the test environment.
+# Installs the plugin into the textpattern installation
 .PHONY: test-deploy
 test-deploy:
 	# Install plugin
 	php -f src/plugin_util.php sql | mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME}
-	# Install python CGI
-	cp src/pygmentize_cgi.py ${TESTENV}/textpattern/lib
-	chmod 755 ${TESTENV}/textpattern/lib/pygmentize_cgi.py
 

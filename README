@@ -5,22 +5,7 @@ articles. The plugin is based on "Pygments":http://pygments.org/.
 
 h2. Installation
 
-Note that the installation procedure is still a bit complicated.
-
-# Enable support for Python CGIs on your webserver
-# Copy @pygmentize_cgi.py@ to @textpattern/lib@
-# Install the textpattern plugin in the usual way
-# Create @pygmentize_cgi.cfg@ in @textpattern/lib@ and configure whitelistRegex 
-  in order to select files that are allowed to be highlighted
-
-h3. Troubleshooting
-
-It might be quite difficult to get Python CGIs work on your web server. You
-might want to try @virtualenv@ and changing the shebang of @pygmentize_cgi.py@
-to an appropriate interpreter on your server installation.
-
-As soon as you got CGIs to work, make sure that @pygmentize_cgi.py@ works as
-expected. Verify this by calling it directly like this:
-
-http://<youserver>/textpattern/lib/pygmentize_cgi.py?url=file
+# Install python on your webserver
+# Install pygments on your webserver
+# Install the pygments-txp plugin 
 

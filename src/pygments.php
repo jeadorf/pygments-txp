@@ -1,49 +1,47 @@
 <?php
 
+function pyg_highlight_invalid($subject, $pattern) {
+    preg_match($pattern, $subject, $matches);
+    return count($matches) == 0 || strlen($matches[0]) != strlen($subject);
+}
+
 /**
  * Textpattern tag for syntax highlighting.
  */
 function pyg_highlight($atts, $thing='') {
     extract(lAtts(array(
         'lang' => '',
-        'linenos' => '',
         'file' => ''
     ), $atts));
 
     // Perform rigorous validity check on the supplied filename.
     // Unusual file names will not be matched. This is intentional.
     // Unusual file names suck anyway.
-    $pattern = '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/';
-    preg_match($pattern, $file, $matches);
-    if (count($matches) == 0 || strlen($matches[0]) != strlen($file)) {
-        return "<p>pyg_highlight: Not a valid filename. Filenames must match the PCRE $pattern!</p>";
+    if (pyg_highlight_invalid($file, '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/')) {
+        return "<p>pyg_highlight: Filename not allowed.</p>";
     }
 
     // Perform rigorous validity check on the supplied language.
     // Unusual language names will not be matched. This is intentional.
-    $pattern = '/[a-zA-Z0-9_\-]+/';
-    preg_match($pattern, $lang, $matches);
-    if (count($matches) == 0 || strlen($matches[0]) != strlen($lang)) {
-        return "<p>pyg_highlight: Not a valid language. Languages must match the PCRE $pattern!</p>";
+    if (pyg_highlight_invalid($lang, '/[a-zA-Z0-9_\-]+/')) {
+        return "<p>pyg_highlight: Language not allowed.</p>";
     }
 
+    global $pyg_highlight_css_included;
+    if (!$pyg_highlight_css_included) {
+        $o = '<style><!--';
+        $o .= `pygmentize -f html -S colorful -a .highlight`;
+        $o .= '--></style>';
+        $o = $o . "--></style>";
+        $pyg_highlight_css_included = 1;
+    }
+
+    // This is the most dangerous line in the complete PHP script.
     global $txpcfg;
-    $url = 'file://' . dirname($txpcfg['txpath']) . '/files/' . $file;
+    $path = escapeshellarg(dirname($txpcfg['txpath']) . '/files/' . $file);
+    $o .=`pygmentize -f html $path`;
 
-    // This part surpasses the usual uglyness of PHP code.
-    // Needs to be rewritten by a more skillful programmer.
-    $txp_url = 'http://' . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . dirname($_SERVER['SCRIPT_NAME']);
-    $pygmentize_cgi_url = $txp_url . '/textpattern/lib/pygmentize_cgi.py';
-
-    global $pyg_highlight_include_css;
-    if ($pyg_highlight_include_css) {
-        $css = 'false';
-    } else {
-        $css = 'true';
-    }
-    $pyg_highlight_include_css = 1;
-
-    return file_get_contents($pygmentize_cgi_url . "?lang=$lang&url=" . urlencode($url) . "&css=$css&linenos=$linenos");
+    return $o; 
 }
 
 ?>
