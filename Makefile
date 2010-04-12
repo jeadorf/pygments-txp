@@ -1,11 +1,14 @@
+.PHONY: info 
 info:
-	@php -f plugin_util.php info
+	@php -f src/plugin_util.php info
 
+.PHONY: to_base64 
 to_base64:
-	@php -f plugin_util.php base64
+	@php -f src/plugin_util.php base64
 
+.PHONY: to_sql 
 to_sql:
-	@php -f plugin_util.php sql
+	@php -f src/plugin_util.php sql
 
 # Workaround to avoid shell and Makefile $txpcfg expansion 
 t=$$t
@@ -38,14 +41,15 @@ test-env:
 		\$txpcfg['dbcharset'] = 'utf8';\
 		?>" > ${TESTENV}/textpattern/config.php
 	# Populate database
-	mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME} < txp.sql
+	mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME} < src/txp.sql
 
 # Installs the plugin into the textpattern installation and copies the python
 # CGI to the test environment.
+.PHONY: test-deploy
 test-deploy:
 	# Install plugin
-	php plugin_util.php sql | mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME}
+	php -f src/plugin_util.php sql | mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME}
 	# Install python CGI
-	cp pygmentize_cgi.py ${TESTENV}
-	chmod 755 ${TESTENV}/pygmentize_cgi.py
+	cp src/pygmentize_cgi.py ${TESTENV}/textpattern/lib
+	chmod 755 ${TESTENV}/textpattern/lib/pygmentize_cgi.py
 

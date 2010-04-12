@@ -85,7 +85,7 @@ EOF;
  * @return  generated HTML markup (string)
  */
 function textile_to_html($s) {
-    @include_once('classTextile.php');
+    include_once('lib/classTextile.php');
     $textile = new Textile();
     return $textile->TextileThis($s);
 }
@@ -99,15 +99,15 @@ if ($argc != 2) {
     print "Usage: plugin_util.php [info|base64|sql]";
     exit(-1);
 } else if (strcmp($argv[1], "info") == 0) { 
-    @include_once("plugin_config.php");
+    include_once("src/plugin_config.php");
     global $plugin;
     print plugin_info($plugin);
 } else if (strcmp($argv[1], "base64") == 0) { 
-    @include_once("plugin_config.php");
+    include_once("src/plugin_config.php");
     global $plugin;
     print plugin_to_base64($plugin);
 } else if (strcmp($argv[1], "sql") == 0) { 
-    @include_once("plugin_config.php");
+    include_once("src/plugin_config.php");
     global $plugin;
     print plugin_to_sql($plugin);
 }

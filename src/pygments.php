@@ -27,9 +27,14 @@ function pyg_highlight($atts, $thing='') {
     }
 
 
-    global $txpcfg; 
+    global $txpcfg;
     $url = 'file://' . dirname($txpcfg['txpath']) . '/files/' . $file;
-    return file_get_contents("http://localhost/Temp/test-env/pygmentize_cgi.py?lang=$lang&url=$url");
+
+    // This part surpasses the usual uglyness of PHP code.
+    // Needs to be rewritten by a more skillful programmer.
+    $txp_url = 'http://' . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . dirname($_SERVER['SCRIPT_NAME']);
+    $pygmentize_cgi_url = $txp_url . '/textpattern/lib/pygmentize_cgi.py';
+    return file_get_contents($pygmentize_cgi_url . "?lang=$lang&url=$url");
 }
 
 ?>
