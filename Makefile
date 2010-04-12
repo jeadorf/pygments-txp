@@ -25,6 +25,8 @@ test-env:
 	rm -r ${TESTENV}/*
 	cd ${TESTENV} && wget http://textpattern.com/file_download/56/textpattern-4.2.0.tar.gz
 	cd ${TESTENV} && tar xzf textpattern-4.2.0.tar.gz && mv textpattern-4.2.0/* . && rm -r textpattern-4.2.0
+	chmod 777 ${TESTENV}/files	
+	chmod 777 ${TESTENV}/images
 	# Generate config.php
 	echo "<?php\
 		\$txpcfg['db'] = '${DBNAME}';\

@@ -1,4 +1,6 @@
-h1. Pygments-binding for Textpattern 
+h1. Syntax highlighting using pygments
 
-Provides tag txp:pyg_highlight.
+(ROADMAP) This plugin allows you to:
 
+* highlight code snippets
+* customize style
