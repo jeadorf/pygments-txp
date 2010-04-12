@@ -6,6 +6,7 @@
 function pyg_highlight($atts, $thing='') {
     extract(lAtts(array(
         'lang' => '',
+        'linenos' => '',
         'file' => ''
     ), $atts));
 
@@ -42,7 +43,7 @@ function pyg_highlight($atts, $thing='') {
     }
     $pyg_highlight_include_css = 1;
 
-    return file_get_contents($pygmentize_cgi_url . "?lang=$lang&url=" . urlencode($url) . "&css=$css");
+    return file_get_contents($pygmentize_cgi_url . "?lang=$lang&url=" . urlencode($url) . "&css=$css&linenos=$linenos");
 }
 
 ?>

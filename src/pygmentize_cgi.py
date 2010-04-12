@@ -5,6 +5,7 @@ Input parameters:
 - url       The resource which provides the code to highlight
 - lang      The language of the code (python, css, etc.). See Pygments
             documentation for all supported languages.
+- linenos   Whether to turn line numbers on or off. 
 
 Output is formatted in HTML. Styles are included. This is likely to change with
 future versions.
@@ -68,10 +69,11 @@ def main():
     lang = form.getvalue('lang')
     url = form.getvalue('url')
     css = form.getvalue('css', 'true')
+    linenos = form.getvalue('linenos')
 
     code = urllib2.urlopen(url).read()
     lexer = get_lexer_by_name(lang)
-    formatter = HtmlFormatter(linenos='inline')
+    formatter = HtmlFormatter(linenos=linenos)
     print 'Content-type: text/html'
     print
 
