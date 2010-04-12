@@ -27,8 +27,6 @@ whitelistRegex = <REGEX>
 """
 
 import cgi
-import cgitb
-cgitb.enable()
 
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -46,7 +44,7 @@ class _SecurityException(Exception):
 def _read_cfg():
     cfg = ConfigParser.SafeConfigParser({
         'allowRemoteAccess' : 'False',
-        'whitelistRegex' : ''
+        'whitelistRegex' : 'file:///path/to//textpattern/files/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?'
     })
     cfg.add_section('security')
     cfg.read('pygmentize_cgi.cfg')
@@ -57,11 +55,15 @@ def _security_check(cfg, url):
     whitelistRegex = cfg.get('security', 'whitelistRegex')
     if not allowRemoteAccess:
         if os.environ['REMOTE_ADDR'] != os.environ['SERVER_ADDR']:
-            raise SecurityException('Error: Remote address must match server address.')
+            error = 'Error: Remote address must match server address.'
+            print '<p>' + error + '</p>'
+            raise _SecurityException(error)
     if not whitelistRegex == '':
         m = re.match(whitelistRegex, url)
         if not m or m.group(0) != url:
-            raise _SecurityException('Error: Illegal URL, not matched by whitelist RE.')
+            error = 'Error: Illegal URL, not matched by whitelist RE.'
+            print '<p>' + error + '</p>'
+            raise _SecurityException(error)
 
 def main():
     cfg = _read_cfg()
@@ -71,13 +73,15 @@ def main():
     css = form.getvalue('css', 'true')
     linenos = form.getvalue('linenos')
 
-    code = urllib2.urlopen(url).read()
-    lexer = get_lexer_by_name(lang)
-    formatter = HtmlFormatter(linenos=linenos)
     print 'Content-type: text/html'
     print
 
     _security_check(cfg, url)
+
+    code = urllib2.urlopen(url).read()
+    lexer = get_lexer_by_name(lang)
+    formatter = HtmlFormatter(linenos=linenos)
+
     if not css == 'false':
         print '<style><!--'
         print formatter.get_style_defs('.highlight')
