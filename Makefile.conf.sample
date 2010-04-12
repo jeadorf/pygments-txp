@@ -1,0 +1,17 @@
+# Sample Makefile.conf. Copy this file to Makefile.conf
+# and edit it according to your local environment.
+
+DBNAME=
+DBHOST=localhost
+# User credentials for MYSQL database
+# For safety reasons, make sure that this
+# user has access to the testenv database
+# only.
+DBUSER=
+DBPASSWD=
+# Path to a directory where the test environment should
+# be generated. Make sure that this folder does not contain
+# any important files or folders as it might be cleaned by
+# the Makefile
+TESTENV=/home/johndoe/tmp/test-env
+
