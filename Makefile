@@ -1,6 +1,11 @@
-# Generate the base-64-encoded plugin content
-compile:
-	php pygments_txp_plugin.php
+info:
+	@php -f plugin_util.php info
+
+to_base64:
+	@php -f plugin_util.php base64
+
+to_sql:
+	@php -f plugin_util.php sql
 
 # Workaround to avoid shell and Makefile $txpcfg expansion 
 t=$$t
@@ -37,7 +42,7 @@ test-env:
 # CGI to the test environment.
 test-deploy:
 	# Install plugin
-	php5 pygments_txp_plugin.php | mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME}
+	php plugin_util.php sql | mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME}
 	# Install python CGI
 	cp pygmentize_cgi.py ${TESTENV}
 	chmod 755 ${TESTENV}/pygmentize_cgi.py

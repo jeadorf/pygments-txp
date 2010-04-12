@@ -1,3 +1,5 @@
+-- This SQL dump is used to populate the textpattern test installation
+
 -- phpMyAdmin SQL Dump
 -- version 3.2.2.1deb1
 -- http://www.phpmyadmin.net
