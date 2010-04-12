@@ -26,7 +26,6 @@ function pyg_highlight($atts, $thing='') {
         return "<p>pyg_highlight: Not a valid language. Languages must match the PCRE $pattern!</p>";
     }
 
-
     global $txpcfg;
     $url = 'file://' . dirname($txpcfg['txpath']) . '/files/' . $file;
 
@@ -34,7 +33,7 @@ function pyg_highlight($atts, $thing='') {
     // Needs to be rewritten by a more skillful programmer.
     $txp_url = 'http://' . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . dirname($_SERVER['SCRIPT_NAME']);
     $pygmentize_cgi_url = $txp_url . '/textpattern/lib/pygmentize_cgi.py';
-    return file_get_contents($pygmentize_cgi_url . "?lang=$lang&url=$url");
+    return file_get_contents($pygmentize_cgi_url . "?lang=$lang&url=" . urlencode($url));
 }
 
 ?>
