@@ -67,18 +67,19 @@ def main():
     form = cgi.FieldStorage()
     lang = form.getvalue('lang')
     url = form.getvalue('url')
+    css = form.getvalue('css', 'true')
 
     code = urllib2.urlopen(url).read()
     lexer = get_lexer_by_name(lang)
-    formatter = HtmlFormatter()
+    formatter = HtmlFormatter(linenos='inline')
     print 'Content-type: text/html'
     print
 
     _security_check(cfg, url)
-
-    print '<style><!--'
-    print formatter.get_style_defs('.highlight')
-    print '--></style>'
+    if not css == 'false':
+        print '<style><!--'
+        print formatter.get_style_defs('.highlight')
+        print '--></style>'
     print
     print highlight(code, lexer, formatter)
     print
