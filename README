@@ -7,5 +7,6 @@ h2. Installation
 
 # Install python on your webserver
 # Install pygments on your webserver
-# Install the pygments-txp plugin 
+# Generate plugin using 'make plugin'
+# Install the plugin in the usual manner
 
