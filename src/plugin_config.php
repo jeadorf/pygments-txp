@@ -2,13 +2,12 @@
 include_once('src/plugin_util.php');
 
 $plugin['name'] = 'pygments-txp';
-$plugin['version'] = '0.1';
+$plugin['version'] = '0.1.dev';
 $plugin['author'] = 'Julius Adorf';
 $plugin['author_uri'] = 'http://bitbucket.org/jeadorf/pygments-txp';
 $plugin['description'] = 'Syntax highlighting using pygments';
 $plugin['help'] = textile_to_html(file_get_contents('README'));
-// TODO: refactor this
-$plugin['code'] = substr(file_get_contents('src/pygments.php'), 5, -3);
+$plugin['code'] = extract_code('src/pygments.php'); 
 $plugin['md5'] = md5($plugin['code']);
 
 // Plugin types:

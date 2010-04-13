@@ -90,6 +90,9 @@ function textile_to_html($s) {
     return $textile->TextileThis($s);
 }
 
+function extract_code($file) {
+    return substr(file_get_contents('src/pygments.php'), 5, -3);
+}
 
 // -------------------------------------------------------------
 // MAIN
