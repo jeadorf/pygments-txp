@@ -1,12 +1,50 @@
 h1. Syntax highlighting using pygments
 
 This plugin adds syntax hightlighting to textpattern. You can embed code in
-articles. The plugin is based on "Pygments":http://pygments.org/. 
+articles. The plugin is based on "Pygments":http://pygments.org/.
 
 h2. Installation
 
 # Install python on your webserver
 # Install pygments on your webserver
-# Generate plugin using 'make plugin'
+# Generate copy&paste plugin data using 'make plugin'
 # Install the plugin in the usual manner
+# (optional) Install the
+ "pygments-snippet-filter":http://bitbucket.org/jeadorf/pygments-snippet-filter
+ plugin for pygments on your webserver
+
+h3. Troubleshooting
+
+If you run into troubles, simply ask! Here are some tips that might help:
+
+* Verify that pygmentize is correctly installed and accessible from the server's shell
+* Make sure '/usr/bin/pygmentize' is available. If you have a local python environment
+  (e.g. _virtualenv_) you have to specify the script location manually in
+  '&lt;textpattern&gt;/textpattern/config.php' in the variable $txpcfg['pygmentize'].
+* When in doubt: do not waste time and ask. That might save you some time.
+* Make sure that your Pygments installation supports the language of the file you
+  want to highlight.
+
+h2. Usage
+
+For embedding highlighted code in a textpattern article, use the tag *&lt;txp:pyg_highlight /&gt;*.
+It supports the following parameters:
+
+* *file* - The name of an uploaded file in &lt;textpattern&gt;/files. Paths are
+    not allowed. File names are restricted to alphanumerical characters,
+    underscores, dots, and hyphens. Files must not begin with a dot.
+* *linenos* - Enables line numbers. If set to 'inline' the line numbers are shown
+    within the code box otherwise outside of the box. See Pygments reference for
+    further information as this value is directly passed to Pygments.
+* *from* - The first line to be displayed. This only works if the
+    pygments-snippet-filter plugin is installed on your server.
+* *to* - This line and all lines beyond are not displayed. This only works if
+    the pygments-snippet-filter plugin is installed on your server.
+
+h3. Examples
+
+pre. <txp:pyg_highlight file='join.sql' />
+<txp:pyg_highlight file='oca.ml' linenos='inline' />
+<txp:pyg_highlight file='NotTheIsland.java' linenos='table' />
+<txp:pyg_highlight file='ramide.py' from='3' to='14'/>
 

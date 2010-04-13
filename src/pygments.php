@@ -5,43 +5,69 @@ function pyg_highlight_invalid($subject, $pattern) {
     return count($matches) == 0 || strlen($matches[0]) != strlen($subject);
 }
 
+function pyg_highlight_invalid_attr_error($msg) {
+    return "<p>pyg_highlight: invalid value for attribute '$msg' </p>";
+}
+
+function pyg_highlight_snippet_filter_available() {
+    return stripos(shell_exec('pygmentize -L filters'), '* snippet') !== False;
+}
+
 /**
  * Textpattern tag for syntax highlighting.
  */
 function pyg_highlight($atts, $thing='') {
     extract(lAtts(array(
-        'lang' => '',
-        'file' => ''
+        'file' => '',
+        'from' => '1',
+        'to' => '' . PHP_INT_MAX,
+        'linenos' => ''
     ), $atts));
 
-    // Perform rigorous validity check on the supplied filename.
-    // Unusual file names will not be matched. This is intentional.
-    // Unusual file names suck anyway.
-    if (pyg_highlight_invalid($file, '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/')) {
-        return "<p>pyg_highlight: Filename not allowed.</p>";
+    global $txpcfg;
+    $pygmentize = $txpcfg['pygmentize'];
+    if ($pygmentize == '') {
+        $pygmentize = '/usr/bin/pygmentize';
     }
 
-    // Perform rigorous validity check on the supplied language.
-    // Unusual language names will not be matched. This is intentional.
-    if (pyg_highlight_invalid($lang, '/[a-zA-Z0-9_\-]+/')) {
-        return "<p>pyg_highlight: Language not allowed.</p>";
-    }
+    if (pyg_highlight_invalid($file, '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/'))
+        return pyg_highlight_invalid_attr_error('file');
+    if (pyg_highlight_invalid($linenos, '/[a-zA-Z0-9_\-]*/'))
+        return pyg_highlight_invalid_attr_error('linenos');
+    if (pyg_highlight_invalid($from, '/[0-9]+/'))
+        return pyg_highlight_invalid_attr_error('from');
+    if (pyg_highlight_invalid($to, '/[0-9]+/'))
+        return pyg_highlight_invalid_attr_error('to');
+    if (pyg_highlight_invalid($pygmentize, '/[0-9a-zA-Z\-_\/]*\/pygmentize/'))
+        return pyg_highlight_invalid_attr_error('pygmentize');
 
     global $pyg_highlight_css_included;
     if (!$pyg_highlight_css_included) {
         $o = '<style><!--';
-        $o .= `pygmentize -f html -S colorful -a .highlight`;
+        $o .= shell_exec("$pygmentize -f html -S default -a .highlight");
         $o .= '--></style>';
-        $o = $o . "--></style>";
         $pyg_highlight_css_included = 1;
     }
 
-    // This is the most dangerous line in the complete PHP script.
-    global $txpcfg;
-    $path = escapeshellarg(dirname($txpcfg['txpath']) . '/files/' . $file);
-    $o .=`pygmentize -f html $path`;
+    $path = dirname($txpcfg['txpath']) . '/files/' . $file;
 
-    return $o; 
+    if (!file_exists($path)) {
+        return "<p>pyg_highlight: File '$path' does not exist.</p>";
+    }
+
+    $path = escapeshellarg($path);
+    $linenos = escapeshellarg($linenos);
+
+    if (pyg_highlight_snippet_filter_available()) {
+        $from = escapeshellarg($from);
+        $to = escapeshellarg($to);
+        $o .= shell_exec("$pygmentize -f html -F snippet:fromline=$from,toline=$to -O linenostart=$from,linenos=$linenos $path");
+    } else if (strcmp($from, '1') == 0 && strcmp($to, ''.PHP_INT_MAX) == 0) {
+        $o .= shell_exec("$pygmentize -f html -O linenos=$linenos $path");
+    } else {
+        return "<p>pyg_highlight: pygments-snippet-filter not installed.</p>";
+    }
+    return $o;
 }
 
 ?>

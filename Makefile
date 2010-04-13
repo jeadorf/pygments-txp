@@ -38,6 +38,7 @@ test-env:
 		\$txpcfg['table_prefix'] = '';\
 		\$txpcfg['txpath'] = '${TXPATH}';\
 		\$txpcfg['dbcharset'] = 'utf8';\
+		\$txpcfg['pygmentize'] = '/usr/bin/pygmentize';\
 		?>" > ${TESTENV}/textpattern/config.php
 	# Populate database
 	mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME} < src/txp.sql

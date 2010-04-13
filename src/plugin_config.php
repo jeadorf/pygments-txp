@@ -1,7 +1,7 @@
 <?php
 include_once('src/plugin_util.php');
 
-$plugin['name'] = 'pygments';
+$plugin['name'] = 'pygments-txp';
 $plugin['version'] = '0.1';
 $plugin['author'] = 'Julius Adorf';
 $plugin['author_uri'] = 'http://bitbucket.org/jeadorf/pygments-txp';
