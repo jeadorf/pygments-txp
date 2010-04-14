@@ -27,26 +27,32 @@ function pyg_pygments_txp_on_delete() {
 
 class pyg_highlight {
 
-    function highlight($atts, $thing='') {
+    private static $patterns = array(
+        'file' => '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/',
+        'linenos' => '/[a-zA-Z0-9_\-]*/',
+        'from' => '/[0-9]+/',
+        'to' => '/[0-9]+/',
+        'pygmentize' => '/[0-9a-zA-Z\-_\/]*\/pygmentize/'
+    );
+
+    public static function highlight($raw_attrs, $thing='') {
         global $txpcfg;
         global $pyg_highlight_css_included;
 
-        extract(lAtts(array(
+        $attrs = lAtts(array(
             'file' => '',
             'from' => '1',
             'to' => '' . PHP_INT_MAX,
             'linenos' => ''
-        ), $atts));
+        ), $raw_attrs);
 
-        $pygmentize = get_pref('pyg_highlight_pygmentize', '/usr/bin/pygmentize');
+        $attrs['pygmentize'] = get_pref('pyg_highlight_pygmentize', '/usr/bin/pygmentize');
 
-        if (pyg_highlight::invalid('file', $file, '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/', $ret_msg)
-                || pyg_highlight::invalid('linenos', $linenos, '/[a-zA-Z0-9_\-]*/', $ret_msg)
-                || pyg_highlight::invalid('from', $from, '/[0-9]+/', $ret_msg)
-                || pyg_highlight::invalid('to', $to, '/[0-9]+/', $ret_msg)
-                || pyg_highlight::invalid('pygmentize', $pygmentize, '/[0-9a-zA-Z\-_\/]*\/pygmentize/', $ret_msg)) {
+        if (pyg_highlight::invalid_exists($attrs, $ret_msg)) {
             return $ret_msg;
         }
+
+        extract($attrs);
 
         if (!$pyg_highlight_css_included) {
             $o = '<style><!--';
@@ -76,9 +82,17 @@ class pyg_highlight {
         return $o;
     }
 
-    private function invalid($description, $subject, $pattern, &$ret_msg) {
-        preg_match_all($pattern, $subject, $matches);
-        if (count($matches) == 0 || strlen($matches[0][0]) != strlen($subject)) {
+    private static function invalid_exists($attrs, &$ret_msg) {
+        foreach ($attrs as $n => $v) {
+            if (pyg_highlight::invalid($n, $v, pyg_highlight::$patterns[$n], $ret_msg)) {
+                return True;
+            }
+        }
+    }
+
+    private static function invalid($description, $subject, $pattern, &$ret_msg) {
+        preg_match($pattern, $subject, $matches);
+        if (count($matches) == 0 || strlen($matches[0]) != strlen($subject)) {
             $ret_msg = "<p>pyg_highlight: invalid value for attribute '$description' </p>";
             return True;
         } else {
@@ -86,7 +100,7 @@ class pyg_highlight {
         }
     }
 
-    private function snippet_filter_available() {
+    private static function snippet_filter_available() {
         return stripos(shell_exec('pygmentize -L filters'), '* snippet') !== False;
     }
 
