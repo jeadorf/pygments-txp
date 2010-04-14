@@ -42,6 +42,8 @@ test-env:
 		?>" > ${TESTENV}/textpattern/config.php
 	# Populate database
 	mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME} < src/txp.sql
+	# Upload some file
+	cp src/pygments.php ${TESTENV}/files
 
 # Installs the plugin into the textpattern installation
 .PHONY: test-deploy

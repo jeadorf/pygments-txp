@@ -7,9 +7,10 @@ function plugin_info($plugin) {
        Name: {$plugin['name']}
     Version: {$plugin['version']}
      Author: {$plugin['author']}
- Author-URI: {$plugin['author_uri']} 
+ Author-URI: {$plugin['author_uri']}
 Description: {$plugin['description']}
-       Type: {$plugin['type']}   
+       Type: {$plugin['type']}
+      Flags: {$plugin['flags']}
 
 EOF;
     return $info;
@@ -19,13 +20,13 @@ EOF;
  * Encodes all plugin data into a base-64 string that can be pasted
  * into the installation text-area in the backend adminstration.
  *
- * @return  the plugin in base-64 encoding (string). 
+ * @return  the plugin in base-64 encoding (string).
  */
 function plugin_to_base64($plugin) {
     return trim(chunk_split(base64_encode(serialize($plugin)), 72)). "\n";
 }
 
-/** 
+/**
  * Constructs a SQL statement that can be used to insert the plugin
  * into a textpattern database. Tested with textpattern-4.2.0.
  *
@@ -41,6 +42,7 @@ function plugin_to_sql($plugin) {
     $f['code'] = mysql_real_escape_string($plugin['code']);
     $f['md5'] = mysql_real_escape_string($plugin['md5']);
     $f['type'] = mysql_real_escape_string($plugin['type']);
+    $f['flags'] = mysql_real_escape_string($plugin['flags']);
 
     // TODO: find out what plugin order means
 	$sql = <<<EOF
@@ -61,7 +63,7 @@ INSERT INTO txp_plugin (
     flags
   ) VALUES (
     '{$f['name']}',
-    1, 
+    1,
     '{$f['author']}',
     '{$f['author_uri']}',
     '{$f['version']}',
@@ -72,7 +74,7 @@ INSERT INTO txp_plugin (
     '{$f['md5']}',
     '{$f['type']}',
     5,
-    0 
+    {$f['flags']}
  )
 
 EOF;
@@ -81,7 +83,7 @@ EOF;
 
 /**
  * Transforms textile markup into HTML.
- * 
+ *
  * @return  generated HTML markup (string)
  */
 function textile_to_html($s) {
@@ -101,15 +103,15 @@ function extract_code($file) {
 if ($argc != 2) {
     print "Usage: plugin_util.php [info|base64|sql]";
     exit(-1);
-} else if (strcmp($argv[1], "info") == 0) { 
+} else if (strcmp($argv[1], "info") == 0) {
     include_once("src/plugin_config.php");
     global $plugin;
     print plugin_info($plugin);
-} else if (strcmp($argv[1], "base64") == 0) { 
+} else if (strcmp($argv[1], "base64") == 0) {
     include_once("src/plugin_config.php");
     global $plugin;
     print plugin_to_base64($plugin);
-} else if (strcmp($argv[1], "sql") == 0) { 
+} else if (strcmp($argv[1], "sql") == 0) {
     include_once("src/plugin_config.php");
     global $plugin;
     print plugin_to_sql($plugin);
