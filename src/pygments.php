@@ -6,16 +6,16 @@ function pyg_highlight($attrs, $thing='') {
     return pyg_highlight::highlight($attrs, $thing);
 }
 
-/* global */
+/* installation */
 
-register_callback('pyg_highlight_installed', 'plugin_lifecycle.pygments_txp', 'installed');
-register_callback('pyg_highlight_deleted', 'plugin_lifecycle.pygments_txp', 'deleted');
+register_callback('pyg_pygments_txp_on_install', 'plugin_lifecycle.pygments_txp', 'installed');
+register_callback('pyg_pygments_txp_on_delete', 'plugin_lifecycle.pygments_txp', 'deleted');
 
-function pyg_highlight_installed() {
+function pyg_pygments_txp_on_install() {
     set_pref('pyg_highlight_pygmentize', '/usr/bin/pygmentize', 'admin', 1, 'text_input', 150);
 }
 
-function pyg_highlight_deleted() {
+function pyg_pygments_txp_on_delete() {
     safe_delete('txp_prefs', 'name=\'pyg_highlight_pygmentize\'');
 }
 
@@ -23,9 +23,6 @@ function pyg_highlight_deleted() {
 
 class pyg_highlight {
 
-    /**
-     * Textpattern tag for syntax highlighting.
-     */
     function highlight($atts, $thing='') {
         global $txpcfg;
         global $pyg_highlight_css_included;
@@ -78,16 +75,16 @@ class pyg_highlight {
         return $o;
     }
 
-    function invalid($subject, $pattern) {
+    private function invalid($subject, $pattern) {
         preg_match($pattern, $subject, $matches);
         return count($matches) == 0 || strlen($matches[0]) != strlen($subject);
     }
 
-    function invalid_attr_error($msg) {
+    private function invalid_attr_error($msg) {
         return "<p>pyg_highlight: invalid value for attribute '$msg' </p>";
     }
 
-    function snippet_filter_available() {
+    private function snippet_filter_available() {
         return stripos(shell_exec('pygmentize -L filters'), '* snippet') !== False;
     }
 
