@@ -14,6 +14,7 @@ register_callback('pyg_pygments_txp_on_delete', 'plugin_lifecycle.pygments_txp',
 // TODO: use option system instead of plugging into standard preferences tab
 function pyg_pygments_txp_on_install() {
     set_pref('pyg_highlight_pygmentize', '/usr/bin/pygmentize', 'admin', 1, 'text_input', 50);
+    safe_delete('txp_lang', "name='pyg_highlight_pygmentize'");
     safe_insert('txp_lang', "name='pyg_highlight_pygmentize',data='Pygmentize script location',lang='en-gb',event='prefs'");
 }
 
@@ -39,16 +40,13 @@ class pyg_highlight {
 
         $pygmentize = get_pref('pyg_highlight_pygmentize', '/usr/bin/pygmentize');
 
-        if (pyg_highlight::invalid($file, '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/'))
-            return _pyg_highlight::invalid_attr_error('file');
-        if (pyg_highlight::invalid($linenos, '/[a-zA-Z0-9_\-]*/'))
-            return pyg_highlight::invalid_attr_error('linenos');
-        if (pyg_highlight::invalid($from, '/[0-9]+/'))
-            return pyg_highlight::invalid_attr_error('from');
-        if (pyg_highlight::invalid($to, '/[0-9]+/'))
-            return pyg_highlight::invalid_attr_error('to');
-        if (pyg_highlight::invalid($pygmentize, '/[0-9a-zA-Z\-_\/]*\/pygmentize/'))
-            return pyg_highlight::invalid_attr_error('pygmentize');
+        if (pyg_highlight::invalid('file', $file, '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/', $ret_msg)
+                || pyg_highlight::invalid('linenos', $linenos, '/[a-zA-Z0-9_\-]*/', $ret_msg)
+                || pyg_highlight::invalid('from', $from, '/[0-9]+/', $ret_msg)
+                || pyg_highlight::invalid('to', $to, '/[0-9]+/', $ret_msg)
+                || pyg_highlight::invalid('pygmentize', $pygmentize, '/[0-9a-zA-Z\-_\/]*\/pygmentize/', $ret_msg)) {
+            return $ret_msg;
+        }
 
         if (!$pyg_highlight_css_included) {
             $o = '<style><!--';
@@ -78,13 +76,14 @@ class pyg_highlight {
         return $o;
     }
 
-    private function invalid($subject, $pattern) {
-        preg_match($pattern, $subject, $matches);
-        return count($matches) == 0 || strlen($matches[0]) != strlen($subject);
-    }
-
-    private function invalid_attr_error($msg) {
-        return "<p>pyg_highlight: invalid value for attribute '$msg' </p>";
+    private function invalid($description, $subject, $pattern, &$ret_msg) {
+        preg_match_all($pattern, $subject, $matches);
+        if (count($matches) == 0 || strlen($matches[0][0]) != strlen($subject)) {
+            $ret_msg = "<p>pyg_highlight: invalid value for attribute '$description' </p>";
+            return True;
+        } else {
+            return False;
+        }
     }
 
     private function snippet_filter_available() {
