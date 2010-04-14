@@ -93,7 +93,7 @@ function textile_to_html($s) {
 }
 
 function extract_code($file) {
-    return substr(file_get_contents('src/pygments.php'), 5, -3);
+    return substr(file_get_contents($file), 5, -3);
 }
 
 // -------------------------------------------------------------

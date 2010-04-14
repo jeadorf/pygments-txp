@@ -7,7 +7,7 @@ $plugin['author'] = 'Julius Adorf';
 $plugin['author_uri'] = 'http://bitbucket.org/jeadorf/pygments-txp';
 $plugin['description'] = 'Syntax highlighting using pygments';
 $plugin['help'] = textile_to_html(file_get_contents('README'));
-$plugin['code'] = extract_code('src/pygments.php'); 
+$plugin['code'] = extract_code('src/jea_pygments_txp.php'); 
 $plugin['md5'] = md5($plugin['code']);
 
 // Plugin types:
