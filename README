@@ -20,7 +20,7 @@ If you run into troubles, simply ask! Here are some tips that might help:
 * Verify that pygmentize is correctly installed and accessible from the server's shell
 * Make sure '/usr/bin/pygmentize' is available. If you have a local python environment
   (e.g. _virtualenv_) you have to specify the script location manually in
-  '&lt;textpattern&gt;/textpattern/config.php' in the variable $txpcfg['pygmentize'].
+  the advanced preferences panel in your admin area.
 * When in doubt: do not waste time and ask. That might save you some time.
 * Make sure that your Pygments installation supports the language of the file you
   want to highlight.
@@ -47,4 +47,9 @@ pre. <txp:pyg_highlight file='join.sql' />
 <txp:pyg_highlight file='oca.ml' linenos='inline' />
 <txp:pyg_highlight file='NotTheIsland.java' linenos='table' />
 <txp:pyg_highlight file='ramide.py' from='3' to='14'/>
+
+h2. Known Issues
+
+* This plugin installs a new element into the preferences tab. This is sort of 
+  a hack. The plugin should actually have its own options tab.
 
