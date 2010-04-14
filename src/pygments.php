@@ -11,12 +11,15 @@ function pyg_highlight($attrs, $thing='') {
 register_callback('pyg_pygments_txp_on_install', 'plugin_lifecycle.pygments_txp', 'installed');
 register_callback('pyg_pygments_txp_on_delete', 'plugin_lifecycle.pygments_txp', 'deleted');
 
+// TODO: use option system instead of plugging into standard preferences tab
 function pyg_pygments_txp_on_install() {
     set_pref('pyg_highlight_pygmentize', '/usr/bin/pygmentize', 'admin', 1, 'text_input', 50);
+    safe_insert('txp_lang', "name='pyg_highlight_pygmentize',data='Pygmentize script location',lang='en-gb',event='prefs'");
 }
 
 function pyg_pygments_txp_on_delete() {
-    safe_delete('txp_prefs', 'name=\'pyg_highlight_pygmentize\'');
+    safe_delete('txp_prefs', "name='pyg_highlight_pygmentize'");
+    safe_delete('txp_lang', "name='pyg_highlight_pygmentize'");
 }
 
 /* implementation */
