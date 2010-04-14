@@ -25,7 +25,7 @@ function pyg_pygments_txp_on_delete() {
 
 /* implementation */
 
-class pyg_highlight {
+class pyg_highlight { // serves as namespace only
 
     private static $patterns = array(
         'file' => '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/',
@@ -35,9 +35,10 @@ class pyg_highlight {
         'pygmentize' => '/[0-9a-zA-Z\-_\/]*\/pygmentize/'
     );
 
+    private static $css_included = False;
+
     public static function highlight($raw_attrs, $thing='') {
         global $txpcfg;
-        global $pyg_highlight_css_included;
 
         $attrs = lAtts(array(
             'file' => '',
@@ -54,11 +55,11 @@ class pyg_highlight {
 
         extract($attrs);
 
-        if (!$pyg_highlight_css_included) {
+        if (!pyg_highlight::$css_included) {
             $o = '<style><!--';
             $o .= shell_exec("$pygmentize -f html -S default -a .highlight");
             $o .= '--></style>';
-            $pyg_highlight_css_included = 1;
+            pyg_highlight::$css_included = 1;
         }
 
         $path = dirname($txpcfg['txpath']) . '/files/' . $file;
