@@ -52,6 +52,6 @@ test-deploy:
 	echo "delete from txp_prefs where name='pyg_highlight_pygmentize'" | mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME}
 	echo "insert into txp_prefs\
 		  	(prefs_id, name, val, type, event, html, position, user_name)\
-			values (1, 'pyg_highlight_pygmentize', '/usr/bin/pygmentize', 1, 'admin', 'text_input', 150, '')\
+			values (1, 'pyg_highlight_pygmentize', '/usr/bin/pygmentize', 1, 'admin', 'text_input', 50, '')\
 		 " | mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME}
 

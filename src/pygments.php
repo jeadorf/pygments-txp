@@ -12,7 +12,7 @@ register_callback('pyg_pygments_txp_on_install', 'plugin_lifecycle.pygments_txp'
 register_callback('pyg_pygments_txp_on_delete', 'plugin_lifecycle.pygments_txp', 'deleted');
 
 function pyg_pygments_txp_on_install() {
-    set_pref('pyg_highlight_pygmentize', '/usr/bin/pygmentize', 'admin', 1, 'text_input', 150);
+    set_pref('pyg_highlight_pygmentize', '/usr/bin/pygmentize', 'admin', 1, 'text_input', 50);
 }
 
 function pyg_pygments_txp_on_delete() {
