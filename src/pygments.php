@@ -1,5 +1,16 @@
 <?php
 
+register_callback('pyg_highlight_installed', 'plugin_lifecycle.pygments_txp', 'installed');
+register_callback('pyg_highlight_deleted', 'plugin_lifecycle.pygments_txp', 'deleted');
+
+function pyg_highlight_installed() {
+    set_pref('pyg_highlight_pygmentize', '/usr/bin/pygmentize', 'admin', 1, 'text_input', 150);
+}
+
+function pyg_highlight_deleted() {
+    safe_delete('txp_prefs', 'name=\'pyg_highlight_pygmentize\'');
+}
+
 function pyg_highlight_invalid($subject, $pattern) {
     preg_match($pattern, $subject, $matches);
     return count($matches) == 0 || strlen($matches[0]) != strlen($subject);
@@ -17,6 +28,9 @@ function pyg_highlight_snippet_filter_available() {
  * Textpattern tag for syntax highlighting.
  */
 function pyg_highlight($atts, $thing='') {
+    global $txpcfg;
+    global $pyg_highlight_css_included;
+
     extract(lAtts(array(
         'file' => '',
         'from' => '1',
@@ -24,11 +38,7 @@ function pyg_highlight($atts, $thing='') {
         'linenos' => ''
     ), $atts));
 
-    global $txpcfg;
-    $pygmentize = $txpcfg['pygmentize'];
-    if ($pygmentize == '') {
-        $pygmentize = '/usr/bin/pygmentize';
-    }
+    $pygmentize = get_pref('pyg_highlight_pygmentize', '/usr/bin/pygmentize');
 
     if (pyg_highlight_invalid($file, '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/'))
         return pyg_highlight_invalid_attr_error('file');
@@ -41,7 +51,6 @@ function pyg_highlight($atts, $thing='') {
     if (pyg_highlight_invalid($pygmentize, '/[0-9a-zA-Z\-_\/]*\/pygmentize/'))
         return pyg_highlight_invalid_attr_error('pygmentize');
 
-    global $pyg_highlight_css_included;
     if (!$pyg_highlight_css_included) {
         $o = '<style><!--';
         $o .= shell_exec("$pygmentize -f html -S default -a .highlight");
