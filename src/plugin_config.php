@@ -1,7 +1,7 @@
 <?php
 include_once('src/plugin_util.php');
 
-$plugin['name'] = 'pygments_txp';
+$plugin['name'] = 'jea_pygments_txp';
 $plugin['version'] = '0.1.dev';
 $plugin['author'] = 'Julius Adorf';
 $plugin['author_uri'] = 'http://bitbucket.org/jeadorf/pygments-txp';
@@ -15,5 +15,5 @@ $plugin['md5'] = md5($plugin['code']);
 // 1 = admin plugin; loaded on both the public and admin side
 // 2 = library; loaded only when include_plugin() or require_plugin() is called
 $plugin['type'] = 0; 
-$plugin['flags'] = 2;  // should be PLUGIN_LIFECYCLE_NOTIFY
+$plugin['flags'] = 3;  // should be PLUGIN_LIFECYCLE_NOTIFY
 ?>
