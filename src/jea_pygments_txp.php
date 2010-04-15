@@ -15,19 +15,41 @@ if (@txpinterface == 'admin') {
     register_callback('jea_pygments_txp_on_prefs', 'plugin_prefs.jea_pygments_txp');
 }
 
-function jea_pygments_txp_defaults() {
-    return array(
+/* default configuration */
+
+class jea_pygments_txp {
+
+    public static $defaults = array(
+        'pygmentize' => '/usr/bin/pygmentize',
+        'linenos' => '0'
+    );
+
+    public static function preferences() {
+        return array(
             'pygmentize' => array(
-                'val'   => '/usr/bin/pygmentize',
+                'val'   => jea_pygments_txp::$defaults['pygmentize'],
                 'html'  => 'text_input',
                 'text'  => 'Pygmentize script location'
+            ),
+            'linenos' => array(
+                'val'   => jea_pygments_txp::$defaults['linenos'],
+                'html'  => 'yesnoradio',
+                'text'  => 'Line numbers'
             )
-    );
+        );
+    }
+
+    public static function get_pref_value($name) {
+        return get_pref("jea_pygments_txp.$name", jea_pygments_txp::$defaults[$name]);
+    }
+
 }
+
+/* preferences management */
 
 function jea_pygments_txp_on_prefs($event, $step) {
     if (function_exists('soo_plugin_pref')) {
-        return soo_plugin_pref($event, $step, jea_pygments_txp_defaults());
+        return soo_plugin_pref($event, $step, jea_pygments_txp::preferences());
     } else if ( substr($event, 0, 12) == 'plugin_prefs' ) {
         $plugin = substr($event, 13);
         $message = '<p style=\'text-align: center\'><br /><strong>' . gTxt('edit') . " $plugin " .
@@ -39,7 +61,7 @@ function jea_pygments_txp_on_prefs($event, $step) {
     }
 }
 
-/* implementation */
+/* highlight tag */
 
 class jea_highlight { // serves as namespace only
 
@@ -60,23 +82,24 @@ class jea_highlight { // serves as namespace only
             'file' => '',
             'from' => '1',
             'to' => '' . PHP_INT_MAX,
-            'linenos' => ''
+            'linenos' => jea_pygments_txp::get_pref_value('linenos')
         ), $raw_attrs);
 
-        $attrs['pygmentize'] = get_pref('jea_pygments_txp.pygmentize', '/usr/bin/pygmentize');
+        $attrs['pygmentize'] = jea_pygments_txp::get_pref_value('pygmentize');
 
         if (jea_highlight::invalid_exists($attrs, $ret_msg)) {
             return $ret_msg;
         }
 
         extract($attrs);
+        var_dump($linenos);
 
         if (!jea_highlight::$css_included) {
             $o = '<style><!--';
             $o .= shell_exec("$pygmentize -f html -S default -a .highlight");
             $o .= '--></style>';
             jea_highlight::$css_included = 1;
-        }
+       }
 
         $path = dirname($txpcfg['txpath']) . '/files/' . $file;
 
@@ -85,17 +108,26 @@ class jea_highlight { // serves as namespace only
         }
 
         $path = escapeshellarg($path);
-        $linenos = escapeshellarg($linenos);
 
-        if (jea_highlight::snippet_filter_available()) {
-            $from = escapeshellarg($from);
-            $to = escapeshellarg($to);
-            $o .= shell_exec("$pygmentize -f html -F snippet:fromline=$from,toline=$to -O linenostart=$from,linenos=$linenos $path");
-        } else if (strcmp($from, '1') == 0 && strcmp($to, ''.PHP_INT_MAX) == 0) {
-            $o .= shell_exec("$pygmentize -f html -O linenos=$linenos $path");
-        } else {
-            return "<p>jea_highlight: pygments-snippet-filter not installed.</p>";
+        $cmd = "$pygmentize ";
+        $cmd .= '-f html ';
+
+        if (strcmp($from, '1') != 0 || strcmp($to, ''.PHP_INT_MAX) != 0) {
+            if (jea_highlight::snippet_filter_available()) {
+                $from = escapeshellarg($from);
+                $to = escapeshellarg($to);
+                $cmd .= "-F snippet:fromline=$from,toline=$to ";
+                $cmd .= "-O linenostart=$from ";
+            } else {
+                return "<p>jea_highlight: pygments-snippet-filter not installed.</p>";
+            }
         }
+        if ($linenos !== '0') {
+            $cmd .= '-O linenos=inline ';
+        }
+        $cmd .= "$path ";
+
+        $o .= shell_exec($cmd);
         return $o;
     }
 

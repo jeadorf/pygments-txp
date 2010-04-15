@@ -42,16 +42,12 @@ test-env:
 		?>" > ${TESTENV}/textpattern/config.php
 	# Populate database
 	mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME} < src/txp.sql
+	# Copy sample file
+	cp src/plugin_util.php ${TESTENV}/files
 
 # Installs the plugin into the textpattern installation
 .PHONY: test-deploy
 test-deploy:
 	# Install plugin
 	php -f src/plugin_util.php sql | mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME}
-	# Fake installation callback routine
-	echo "delete from txp_prefs where name='pyg_highlight_pygmentize'" | mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME}
-	echo "insert into txp_prefs\
-		  	(prefs_id, name, val, type, event, html, position, user_name)\
-			values (1, 'pyg_highlight_pygmentize', '/usr/bin/pygmentize', 1, 'admin', 'text_input', 50, '')\
-		 " | mysql --user=${DBUSER} --password=${DBPASSWD} --host=${DBHOST} ${DBNAME}
 
