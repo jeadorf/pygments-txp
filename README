@@ -5,13 +5,17 @@ articles. The plugin is based on "Pygments":http://pygments.org/.
 
 h2. Installation
 
+# Add jea_pygments_txp plugin to textpattern
 # Install python on your webserver
 # Install pygments on your webserver
-# Generate copy&paste plugin data using 'make plugin'
-# Install the plugin in the usual manner
-# (optional) Install the
- "pygments-snippet-filter":http://bitbucket.org/jeadorf/pygments-snippet-filter
- plugin for pygments on your webserver
+
+h3. Optional dependencies
+
+* Support for showing parts of a file:
+    Install the "pygments-snippet-filter":http://bitbucket.org/jeadorf/pygments-snippet-filter
+    plugin for pygments on your webserver
+* Support for customization:
+    Install textpattern plugin "soo_plugin_pref":http://ipsedixit.net/txp/92/soo_plugin_pref
 
 h3. Troubleshooting
 
@@ -20,7 +24,7 @@ If you run into troubles, simply ask! Here are some tips that might help:
 * Verify that pygmentize is correctly installed and accessible from the server's shell
 * Make sure '/usr/bin/pygmentize' is available. If you have a local python environment
   (e.g. _virtualenv_) you have to specify the script location manually in
-  the plugin options in your admin area.
+  the plugin options tab in your admin area.
 * When in doubt: do not waste time and ask. That might save you some time.
 * Make sure that your Pygments installation supports the language of the file you
   want to highlight.
@@ -33,9 +37,8 @@ It supports the following parameters:
 * *file* - The name of an uploaded file in &lt;textpattern&gt;/files. Paths are
     not allowed. File names are restricted to alphanumerical characters,
     underscores, dots, and hyphens. Files must not begin with a dot.
-* *linenos* - Enables line numbers. If set to 'inline' the line numbers are shown
-    within the code box otherwise outside of the box. See Pygments reference for
-    further information as this value is directly passed to Pygments.
+* *linenos* - Enables line numbers if set to 'true'. Corresponds to Pygments'
+    linenos=inline option.
 * *from* - The first line to be displayed. This only works if the
     pygments-snippet-filter plugin is installed on your server.
 * *to* - This line and all lines beyond are not displayed. This only works if
@@ -48,8 +51,29 @@ pre. <txp:jea_highlight file='join.sql' />
 <txp:jea_highlight file='NotTheIsland.java' linenos='false' />
 <txp:jea_highlight file='ramide.py' from='3' to='14'/>
 
-h2. Known Issues
+h3. Customization
 
-* This plugin installs a new element into the preferences tab. This is sort of 
-  a hack. The plugin should actually have its own options tab.
+The plugin can be customized in several ways. You can go to the plugin options
+tab and change the default values for most of the parameters used by the
+&lt;txp:jea_highlight /&gt tag.
+
+* *Pygmentize script location* - Specify the location of your pygmentize script
+    that is shipped with Pygments. Note that for security reasons the script's file
+    name must be 'pygmentize'.
+
+* *Line numbers* - See parameter 'linenos'.
+
+* *Inline CSS* - This causes Pygments to create inline style information instead
+    of class names. Use this if you do not plan to include an extra style sheet
+    to format the highlighted code.
+
+* *Highlighting style* - There are several predefined styles available. Find out
+    with 'pygmentize -L styles' what styles are available.
+
+h2. Known issues
+
+* styles should be listed in a drop-box on the preferences panel
+* there is missing a language parameter that explicitly sets a language,
+  currently the language is guessed from the file name. If there is no
+  guess, nothing is shown.
 
