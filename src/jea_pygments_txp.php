@@ -39,8 +39,16 @@ class jea_pygments_txp {
         );
     }
 
-    public static function get_pref_value($name) {
+    public static function get_string_pref($name) {
         return get_pref("jea_pygments_txp.$name", jea_pygments_txp::$defaults[$name]);
+    }
+
+    public static function as_bool($s) {
+        $s = strtolower($s);
+        return (strcmp($s, 'true') == 0
+            || strcmp($s, 'on') == 0
+            || strcmp($s, 'yes') == 0
+            || strcmp($s, '1') == 0);
     }
 
 }
@@ -76,24 +84,23 @@ class jea_highlight { // serves as namespace only
     private static $css_included = False;
 
     public static function highlight($raw_attrs, $thing='') {
-        global $txpcfg;
-
         $attrs = lAtts(array(
             'file' => '',
             'from' => '1',
             'to' => '' . PHP_INT_MAX,
-            'linenos' => jea_pygments_txp::get_pref_value('linenos')
+            'linenos' => jea_pygments_txp::get_string_pref('linenos')
         ), $raw_attrs);
 
-        $attrs['pygmentize'] = jea_pygments_txp::get_pref_value('pygmentize');
+        $attrs['pygmentize'] = jea_pygments_txp::get_string_pref('pygmentize');
 
         if (jea_highlight::invalid_exists($attrs, $ret_msg)) {
             return $ret_msg;
         }
 
         extract($attrs);
-        var_dump($linenos);
+        $linenos = jea_pygments_txp::as_bool($linenos);
 
+        // generate styles
         if (!jea_highlight::$css_included) {
             $o = '<style><!--';
             $o .= shell_exec("$pygmentize -f html -S default -a .highlight");
@@ -101,6 +108,7 @@ class jea_highlight { // serves as namespace only
             jea_highlight::$css_included = 1;
        }
 
+        global $txpcfg;
         $path = dirname($txpcfg['txpath']) . '/files/' . $file;
 
         if (!file_exists($path)) {
@@ -122,7 +130,7 @@ class jea_highlight { // serves as namespace only
                 return "<p>jea_highlight: pygments-snippet-filter not installed.</p>";
             }
         }
-        if ($linenos !== '0') {
+        if ($linenos) {
             $cmd .= '-O linenos=inline ';
         }
         $cmd .= "$path ";
