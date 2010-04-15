@@ -8,19 +8,35 @@ function jea_highlight($attrs, $thing='') {
 
 /* installation */
 
-register_callback('jea_pygments_txp_on_install', 'plugin_lifecycle.jea_pygments_txp', 'installed');
-register_callback('jea_pygments_txp_on_delete', 'plugin_lifecycle.jea_pygments_txp', 'deleted');
-
-// TODO: use option system instead of plugging into standard preferences tab
-function jea_pygments_txp_on_install() {
-    set_pref('jea_highlight_pygmentize', '/usr/bin/pygmentize', 'admin', 1, 'text_input', 50);
-    safe_delete('txp_lang', "name='jea_highlight_pygmentize'");
-    safe_insert('txp_lang', "name='jea_highlight_pygmentize',data='Pygmentize script location',lang='en-gb',event='prefs'");
+if (@txpinterface == 'admin') {
+    @require_plugin('soo_plugin_pref');
+    add_privs('jea_pygments_txp', '1,2');
+    add_privs('plugin_prefs.jea_pygments_txp', '1,2');
+    register_callback('jea_pygments_txp_on_prefs', 'plugin_prefs.jea_pygments_txp');
 }
 
-function jea_pygments_txp_on_delete() {
-    safe_delete('txp_prefs', "name='jea_highlight_pygmentize'");
-    safe_delete('txp_lang', "name='jea_highlight_pygmentize'");
+function jea_pygments_txp_defaults() {
+    return array(
+            'pygmentize' => array(
+                'val'   => '/usr/bin/pygmentize',
+                'html'  => 'text_input',
+                'text'  => 'Pygmentize script location'
+            )
+    );
+}
+
+function jea_pygments_txp_on_prefs($event, $step) {
+    if (function_exists('soo_plugin_pref')) {
+        return soo_plugin_pref($event, $step, jea_pygments_txp_defaults());
+    } else if ( substr($event, 0, 12) == 'plugin_prefs' ) {
+        $plugin = substr($event, 13);
+        $message = '<p style=\'text-align: center\'><br /><strong>' . gTxt('edit') . " $plugin " .
+            gTxt('edit_preferences') . ':</strong><br /><br/>' .
+            gTxt('install_plugin') . ' <a
+            href="http://ipsedixit.net/txp/92/soo_plugin_pref">soo_plugin_pref</a><br/></p>';
+        pagetop(gTxt('edit_preferences') . " &#8250; $plugin", $message);
+        print $message;
+    }
 }
 
 /* implementation */
@@ -47,7 +63,7 @@ class jea_highlight { // serves as namespace only
             'linenos' => ''
         ), $raw_attrs);
 
-        $attrs['pygmentize'] = get_pref('jea_highlight_pygmentize', '/usr/bin/pygmentize');
+        $attrs['pygmentize'] = get_pref('jea_pygments_txp.pygmentize', '/usr/bin/pygmentize');
 
         if (jea_highlight::invalid_exists($attrs, $ret_msg)) {
             return $ret_msg;
