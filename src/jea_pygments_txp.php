@@ -21,7 +21,9 @@ class jea_pygments_txp {
 
     public static $defaults = array(
         'pygmentize' => '/usr/bin/pygmentize',
-        'linenos' => '0'
+        'linenos' => '0',
+        'inline_css' => '1',
+        'style' => 'default'
     );
 
     public static function preferences() {
@@ -35,7 +37,18 @@ class jea_pygments_txp {
                 'val'   => jea_pygments_txp::$defaults['linenos'],
                 'html'  => 'yesnoradio',
                 'text'  => 'Line numbers'
+            ),
+            'inline_css' => array(
+                'val'   => jea_pygments_txp::$defaults['inline_css'],
+                'html'  => 'yesnoradio',
+                'text'  => 'Inline CSS'
+            ),
+            'style' => array(
+                'val'   => jea_pygments_txp::$defaults['style'],
+                'html'  => 'text_input',
+                'text'  => 'Highlighting style'
             )
+
         );
     }
 
@@ -78,17 +91,19 @@ class jea_highlight { // serves as namespace only
         'linenos' => '/[a-zA-Z0-9_\-]*/',
         'from' => '/[0-9]+/',
         'to' => '/[0-9]+/',
+        'style' => '/[a-zA-Z0-9_\-]*/',
+        'inline_css' => '/[a-zA-Z0-9_\-]*/',
         'pygmentize' => '/[0-9a-zA-Z\-_\/]*\/pygmentize/'
     );
-
-    private static $css_included = False;
 
     public static function highlight($raw_attrs, $thing='') {
         $attrs = lAtts(array(
             'file' => '',
             'from' => '1',
             'to' => '' . PHP_INT_MAX,
-            'linenos' => jea_pygments_txp::get_string_pref('linenos')
+            'linenos' => jea_pygments_txp::get_string_pref('linenos'),
+            'style' => jea_pygments_txp::get_string_pref('style'),
+            'inline_css' => jea_pygments_txp::get_string_pref('inline_css')
         ), $raw_attrs);
 
         $attrs['pygmentize'] = jea_pygments_txp::get_string_pref('pygmentize');
@@ -99,42 +114,46 @@ class jea_highlight { // serves as namespace only
 
         extract($attrs);
         $linenos = jea_pygments_txp::as_bool($linenos);
+        $inline_css = jea_pygments_txp::as_bool($inline_css);
 
-        // generate styles
-        if (!jea_highlight::$css_included) {
-            $o = '<style><!--';
-            $o .= shell_exec("$pygmentize -f html -S default -a .highlight");
-            $o .= '--></style>';
-            jea_highlight::$css_included = 1;
-       }
+        $o = '';
 
         global $txpcfg;
         $path = dirname($txpcfg['txpath']) . '/files/' . $file;
-
         if (!file_exists($path)) {
             return "<p>jea_highlight: File '$path' does not exist.</p>";
         }
 
-        $path = escapeshellarg($path);
-
-        $cmd = "$pygmentize ";
-        $cmd .= '-f html ';
-
+        $cmd = escapeshellcmd($pygmentize);
+        $cmd .= ' -f html';
         if (strcmp($from, '1') != 0 || strcmp($to, ''.PHP_INT_MAX) != 0) {
             if (jea_highlight::snippet_filter_available()) {
-                $from = escapeshellarg($from);
-                $to = escapeshellarg($to);
-                $cmd .= "-F snippet:fromline=$from,toline=$to ";
-                $cmd .= "-O linenostart=$from ";
+                $cmd .= ' -F '.escapeshellarg("snippet:fromline=$from,toline=$to");
+                $cmd .= ' -O '.escapeshellarg("linenostart=$from");
             } else {
                 return "<p>jea_highlight: pygments-snippet-filter not installed.</p>";
             }
         }
         if ($linenos) {
-            $cmd .= '-O linenos=inline ';
+            $cmd .= ' -O linenos=inline';
         }
-        $cmd .= "$path ";
+        if ($inline_css) {
+            $cmd .= ' -O noclasses=True';
+            // workaround for lost background issue
+            // http://dev.pocoo.org/projects/pygments/ticket/427
+            $csscmd = escapeshellcmd($pygmentize);
+            $csscmd .= ' -f html';
+            $csscmd .= ' -S ' . escapeshellarg($style);
+            $csshack = shell_exec($csscmd);
+            if (preg_match('/\.hll {([^\}]*)}/', $csshack, $matches)) {
+                $cmd .= ' -O '.escapeshellarg('cssstyles='.substr($matches[0], 6, -1));
+            }
+        }
+        $cmd .= ' -O '.escapeshellarg("cssclass=jea_pygments_txp_$style");
+        $cmd .= ' -O '.escapeshellarg("style=$style");
+        $cmd .= ' '.escapeshellarg($path);
 
+        // print "<pre>$cmd</pre>";
         $o .= shell_exec($cmd);
         return $o;
     }
