@@ -24,7 +24,9 @@ If you run into troubles, simply ask! Here are some tips that might help:
 * Verify that pygmentize is correctly installed and accessible from the server's shell
 * Make sure '/usr/bin/pygmentize' is available. If you have a local python environment
   (e.g. _virtualenv_) you have to specify the script location manually in
-  the plugin options tab in your admin area.
+  the plugin options tab in your admin area. You might have to hit save on the
+  article where you use the highlighting tag in order to prevent textpattern from serving
+  the cached version of your article output.
 * When in doubt: do not waste time and ask. That might save you some time.
 * Make sure that your Pygments installation supports the language of the file you
   want to highlight.
