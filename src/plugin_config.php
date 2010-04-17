@@ -2,7 +2,7 @@
 include_once('src/plugin_util.php');
 
 $plugin['name'] = 'jea_pygments_txp';
-$plugin['version'] = '0.1';
+$plugin['version'] = '0.2.dev';
 $plugin['author'] = 'Julius Adorf';
 $plugin['author_uri'] = 'http://bitbucket.org/jeadorf/pygments-txp';
 $plugin['description'] = 'Syntax highlighting using pygments';
