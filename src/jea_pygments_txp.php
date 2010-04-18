@@ -70,7 +70,8 @@ class jea_pygments_txp {
 
 function jea_pygments_txp_on_prefs($event, $step) {
     if (function_exists('soo_plugin_pref')) {
-        return soo_plugin_pref($event, $step, jea_pygments_txp::preferences());
+        soo_plugin_pref($event, $step, jea_pygments_txp::preferences());
+        jea_pygments_txp_print_features();
     } else if ( substr($event, 0, 12) == 'plugin_prefs' ) {
         $plugin = substr($event, 13);
         $message = '<p style=\'text-align: center\'><br /><strong>' . gTxt('edit') . " $plugin " .
@@ -82,11 +83,25 @@ function jea_pygments_txp_on_prefs($event, $step) {
     }
 }
 
+function jea_pygments_txp_print_features() {
+        require_once('lib/classTextile.php');
+        $attrs = array('pygmentize' => jea_pygments_txp::get_string_pref('pygmentize'));
+        if (jea_highlight::invalid_exists($attrs, $ret_msg)) {
+            print $ret_msg;
+            return;
+        }
+        extract($attrs);
+        $textile = new Textile();
+        $help = $textile->TextileThis(shell_exec(escapeshellcmd("$pygmentize -L")));
+        print "<div style='border: 1px solid ; margin: 30px auto; padding: 20px; width: 500px'><strong>Pygmentize features generated with 'pygmentize -L'</strong><hr/><p/>$help</div>";
+}
+
 /* highlight tag */
 
 class jea_highlight { // serves as namespace only
 
     private static $patterns = array(
+        'lang' => '/[a-zA-Z0-9_\-]*/',
         'file' => '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/',
         'linenos' => '/[a-zA-Z0-9_\-]*/',
         'from' => '/[0-9]+/',
@@ -98,6 +113,7 @@ class jea_highlight { // serves as namespace only
 
     public static function highlight($raw_attrs, $thing='') {
         $attrs = lAtts(array(
+            'lang' => '',
             'file' => '',
             'from' => '1',
             'to' => '' . PHP_INT_MAX,
@@ -126,6 +142,9 @@ class jea_highlight { // serves as namespace only
 
         $cmd = escapeshellcmd($pygmentize);
         $cmd .= ' -f html';
+        if (strcmp($lang, '') != 0) {
+            $cmd .= ' -l '.escapeshellarg($lang);
+        }
         if (strcmp($from, '1') != 0 || strcmp($to, ''.PHP_INT_MAX) != 0) {
             if (jea_highlight::snippet_filter_available()) {
                 $cmd .= ' -F '.escapeshellarg("snippet:fromline=$from,toline=$to");
@@ -158,7 +177,7 @@ class jea_highlight { // serves as namespace only
         return $o;
     }
 
-    private static function invalid_exists($attrs, &$ret_msg) {
+    static function invalid_exists($attrs, &$ret_msg) {
         foreach ($attrs as $n => $v) {
             if (jea_highlight::invalid($n, $v, jea_highlight::$patterns[$n], $ret_msg)) {
                 return True;

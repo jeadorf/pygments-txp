@@ -45,6 +45,10 @@ It supports the following parameters:
     pygments-snippet-filter plugin is installed on your server.
 * *to* - This line and all lines beyond are not displayed. This only works if
     the pygments-snippet-filter plugin is installed on your server.
+* *lang* - Optionally specifies the language of the code to embed. If not given
+    Pygments tries to guess the language by looking at the file name. Find out
+    with 'pygmentize -L lexers' what languages are available.
+
 
 h3. Examples
 
