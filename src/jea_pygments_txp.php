@@ -108,6 +108,28 @@ class jea_pygments_txp {
             || strcmp($s, '1') == 0);
     }
 
+    public static function subprocess($cmd, $input) {
+        $dspec = array(
+            0 => array("pipe", "r"), // stdin 
+            1 => array("pipe", "w")  // stdout 
+        );
+        $p = proc_open($cmd, $dspec, $pipes, NULL, NULL); 
+        if (is_resource($p)) {
+            fwrite($pipes[0], $input);
+            fclose($pipes[0]);
+
+            $output = stream_get_contents($pipes[1]);
+            fclose($pipes[1]);
+            if (proc_close($p) == 0) {
+                return $output;
+            } else {
+                throw new Exception("Child process exited with error");
+            }
+        } else {
+            throw new Exception("Cannot execute command");
+        }
+    }
+
 }
 
 /* preferences management */
@@ -169,7 +191,7 @@ class jea_highlight {
                 $cmd .= ' -F '.escapeshellarg("snippet:fromline=$from,toline=$to");
                 $cmd .= ' -O '.escapeshellarg("linenostart=$from");
             } else {
-                return "<p>jea_highlight: pygments-snippet-filter not installed.</p>";
+                throw new Exception("<p>jea_pygments_txp:t pygments-snippet-filter not installed.</p>";
             }
         }
         if ($linenos) {
@@ -191,7 +213,7 @@ class jea_highlight {
         $cmd .= ' -O '.escapeshellarg("style=$style");
         $cmd .= ' '.escapeshellarg($path);
 
-        $o .= shell_exec($cmd);
+        $o .= jea_pygments_txp::subprocess($cmd, '');
         return $o;
     }
 
