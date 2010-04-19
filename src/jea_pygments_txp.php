@@ -189,7 +189,7 @@ class jea_highlight {
                 $cmd .= ' -F '.escapeshellarg("snippet:fromline=$from,toline=$to");
                 $cmd .= ' -O '.escapeshellarg("linenostart=$from");
             } else {
-                throw new Exception("<p>jea_pygments_txp:t pygments-snippet-filter not installed.</p>");
+                throw new Exception("<p>jea_pygments_txp: pygments-snippet-filter not installed.</p>");
             }
         }
         if ($linenos) {
@@ -214,8 +214,7 @@ class jea_highlight {
             global $txpcfg;
             $path = dirname($txpcfg['txpath']) . '/files/' . $file;
             if (!file_exists($path)) {
-                // TODO: throw exception
-                return "<p>jea_highlight: File '$path' does not exist.</p>";
+                throw new Exception("<p>jea_pygments_txp: File '$file' does not exist.</p>");
             }
             $cmd .= ' '.escapeshellarg($path);
         }
