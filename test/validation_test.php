@@ -37,10 +37,12 @@ class ValidationTest extends PHPUnit_Framework_TestCase {
             array('inline_css', 'TrUe', True),
             array('inline_css', 'OfF', True),
             array('inline_css', 'FaLse', True),
+            array('inline_css', '0', True),
+            array('inline_css', '1', True),
             /* inline_css negatives */
             array('inline_css', 'off ', False),
             array('inline_css', '/some', False),
-            array('inline_css', '123', False),
+            array('inline_css', '2', False),
             /* lang positives */
             array('lang', 'python', True),
             array('lang', 'alang-3', True),
@@ -52,10 +54,12 @@ class ValidationTest extends PHPUnit_Framework_TestCase {
             array('linenos', 'TrUe', True),
             array('linenos', 'OfF', True),
             array('linenos', 'FaLse', True),
+            array('linenos', '0', True),
+            array('linenos', '1', True),
             /* linenos negatives */
             array('linenos', 'off ', False),
             array('linenos', '/some', False),
-            array('linenos', '123', False),
+            array('linenos', '2', False),
             /* pygmentize positives */
             array('pygmentize', '/usr/bin/pygmentize', True),
             array('pygmentize', '/usr/local/bin/pygmentize', True),
@@ -79,7 +83,9 @@ class ValidationTest extends PHPUnit_Framework_TestCase {
             array('to', '0', False),
             array('to', '-2', False),
             array('to', 'abc', False),
-            array('to', '/any', False)
+            array('to', '/any', False),
+            /* undefined */
+            array('someundefined', 'foo', False)
         );
     }
 

@@ -36,9 +36,9 @@ class jea_pygments_txp {
     public static $patterns = array(
         'file' => '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/',
         'from' => '/[1-9][0-9]*/',
-        'inline_css' => '/[A-Za-z]+/',
+        'inline_css' => '/[A-Za-z01]+/',
         'lang' => '/[a-zA-Z0-9_\-]*/',
-        'linenos' => '/[A-Za-z]+/',
+        'linenos' => '/[A-Za-z01]+/',
         'pygmentize' => '/([0-9a-zA-Z\-_\/]*\/)?pygmentize/',
         'style' => '/[a-zA-Z0-9_\-]*/',
         'to' => '/[1-9][0-9]*/',
@@ -75,10 +75,14 @@ class jea_pygments_txp {
         if ($attrs !== NULL && array_key_exists($name, $attrs)) {
             $val = $attrs[$name];
         } else {
-            $val = get_pref("jea_pygments_txp.$name", jea_pygments_txp::$defaults[$name]);
+            $defaultval = NULL;
+            if (array_key_exists($name, jea_pygments_txp::$defaults)) {
+                $defaultval = jea_pygments_txp::$defaults[$name];
+            }
+            $val = get_pref("jea_pygments_txp.$name", $defaultval);
         }
 
-        if (jea_pygments_txp::valid($name, $val, $ret_msg)) {
+        if ($val === NULL || jea_pygments_txp::valid($name, $val, $ret_msg)) {
             return $val;
         } else {
             throw new Exception($ret_msg);
@@ -175,12 +179,6 @@ class jea_highlight {
 
         $o = '';
 
-        global $txpcfg;
-        $path = dirname($txpcfg['txpath']) . '/files/' . $file;
-        if (!file_exists($path)) {
-            return "<p>jea_highlight: File '$path' does not exist.</p>";
-        }
-
         $cmd = escapeshellcmd($pygmentize);
         $cmd .= ' -f html';
         if (strcmp($lang, '') != 0) {
@@ -211,9 +209,18 @@ class jea_highlight {
         }
         $cmd .= ' -O '.escapeshellarg("cssclass=jea_pygments_txp_$style");
         $cmd .= ' -O '.escapeshellarg("style=$style");
-        $cmd .= ' '.escapeshellarg($path);
 
-        $o .= jea_pygments_txp::subprocess($cmd, '');
+        if ($file !== NULL) {
+            global $txpcfg;
+            $path = dirname($txpcfg['txpath']) . '/files/' . $file;
+            if (!file_exists($path)) {
+                // TODO: throw exception
+                return "<p>jea_highlight: File '$path' does not exist.</p>";
+            }
+            $cmd .= ' '.escapeshellarg($path);
+        }
+
+        $o .= jea_pygments_txp::subprocess($cmd, $thing);
         return $o;
     }
 

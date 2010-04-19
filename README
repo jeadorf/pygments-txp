@@ -45,10 +45,22 @@ It supports the following parameters:
     pygments-snippet-filter plugin is installed on your server.
 * *to* - This line and all lines beyond are not displayed. This only works if
     the pygments-snippet-filter plugin is installed on your server.
-* *lang* - Optionally specifies the language of the code to embed. If not given
-    Pygments tries to guess the language by looking at the file name. Find out
-    with 'pygmentize -L lexers' what languages are available.
+* *lang* - Specifies the language of the code to embed. If not given
+    Pygments tries to guess the language by looking at the file name. This
+    parameter is mandatory if no file is specified. Find out with 'pygmentize
+    -L lexers' or go to plugin options to see what languages are available.
 
+You can also embed and highlight code directly in articles. Therefore, simply wrap the code to highlight
+like this:
+
+pre. <txp:jea_highlight lang='python'><notextile>
+def hypotenuse(a, b):
+    return sqrt(a*a + b*b);
+</notextile></txp:jea_highlight>
+
+The 'notextile' tags ensure that textpattern will not process the tag content using
+the textile markup generation engine. Be careful though, if you try to highlight
+textile markup that contains 'notextile' tags itself!
 
 h3. Examples
 
