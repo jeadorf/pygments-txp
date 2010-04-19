@@ -35,13 +35,13 @@ class jea_pygments_txp {
 
     public static $patterns = array(
         'file' => '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/',
-        'from' => '/[0-9]+/',
-        'inline_css' => '/[a-zA-Z0-9_\-]*/',
+        'from' => '/[1-9][0-9]*/',
+        'inline_css' => '/[A-Za-z]+/',
         'lang' => '/[a-zA-Z0-9_\-]*/',
-        'linenos' => '/[a-zA-Z0-9_\-]*/',
-        'pygmentize' => '/[0-9a-zA-Z\-_\/]*\/pygmentize/',
+        'linenos' => '/[A-Za-z]+/',
+        'pygmentize' => '/([0-9a-zA-Z\-_\/]*\/)?pygmentize/',
         'style' => '/[a-zA-Z0-9_\-]*/',
-        'to' => '/[0-9]+/'
+        'to' => '/[1-9][0-9]*/',
     );
 
 
@@ -85,7 +85,7 @@ class jea_pygments_txp {
         }
     }
 
-    private static function valid($name, $strval, &$ret_msg) {
+    public static function valid($name, $strval, &$ret_msg) {
         if (array_key_exists($name, jea_pygments_txp::$patterns)) {
             preg_match(jea_pygments_txp::$patterns[$name], $strval, $matches);
             if (count($matches) == 0 || strlen($matches[0]) != strlen($strval)) {
@@ -191,7 +191,7 @@ class jea_highlight {
                 $cmd .= ' -F '.escapeshellarg("snippet:fromline=$from,toline=$to");
                 $cmd .= ' -O '.escapeshellarg("linenostart=$from");
             } else {
-                throw new Exception("<p>jea_pygments_txp:t pygments-snippet-filter not installed.</p>";
+                throw new Exception("<p>jea_pygments_txp:t pygments-snippet-filter not installed.</p>");
             }
         }
         if ($linenos) {
