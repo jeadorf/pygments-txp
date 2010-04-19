@@ -20,14 +20,26 @@ if (@txpinterface == 'admin') {
 class jea_pygments_txp {
 
     public static $defaults = array(
-        'pygmentize' => '/usr/bin/pygmentize',
         'from' => '1',
-        'to' => '65536',
+        'inline_css' => '1',
         'lang' => '',
         'linenos' => '0',
-        'inline_css' => '1',
-        'style' => 'default'
+        'pygmentize' => '/usr/bin/pygmentize',
+        'style' => 'default',
+        'to' => '65536'
     );
+
+    public static $patterns = array(
+        'file' => '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/',
+        'from' => '/[0-9]+/',
+        'inline_css' => '/[a-zA-Z0-9_\-]*/',
+        'lang' => '/[a-zA-Z0-9_\-]*/',
+        'linenos' => '/[a-zA-Z0-9_\-]*/',
+        'pygmentize' => '/[0-9a-zA-Z\-_\/]*\/pygmentize/',
+        'style' => '/[a-zA-Z0-9_\-]*/',
+        'to' => '/[0-9]+/'
+    );
+
 
     public static function preferences() {
         return array(
@@ -58,14 +70,14 @@ class jea_pygments_txp {
     /** Retrieves a parameter value from preferences / given array / defaults and
      * validates its value. If it does not match the regular expression that describes the
      * set of allowed words, an exception is raised. */
-    public function get_and_validate($name, $attrs = NULL) {
+    public function get_valid($name, $attrs = NULL) {
         if ($attrs !== NULL && array_key_exists($name, $attrs)) {
             $val = $attrs[$name];
         } else {
             $val = get_pref("jea_pygments_txp.$name", jea_pygments_txp::$defaults[$name]);
         }
 
-        if (jea_highlight::invalid($name, $val, jea_highlight::$patterns[$name], $ret_msg)) {
+        if (jea_highlight::invalid($name, $val, jea_pygments_txp::$patterns[$name], $ret_msg)) {
             throw new Exception($ret_msg);
             return ''; // if exceptions don't work for whatever reason
         } else {
@@ -102,7 +114,7 @@ function jea_pygments_txp_on_prefs($event, $step) {
 
 function jea_pygments_txp_print_features() {
     require_once('lib/classTextile.php');
-    $pygmentize = jea_pygments_txp::get_and_validate('pygmentize');
+    $pygmentize = jea_pygments_txp::get_valid('pygmentize');
     $textile = new Textile();
     $help = $textile->TextileThis(shell_exec(escapeshellcmd("$pygmentize -L")));
     print "<div style='border: 1px solid ; margin: 30px auto; padding: 20px; width: 500px'>
@@ -114,26 +126,15 @@ function jea_pygments_txp_print_features() {
 
 class jea_highlight { // serves as namespace only
 
-    public static $patterns = array(
-        'lang' => '/[a-zA-Z0-9_\-]*/',
-        'file' => '/[a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*\.?/',
-        'linenos' => '/[a-zA-Z0-9_\-]*/',
-        'from' => '/[0-9]+/',
-        'to' => '/[0-9]+/',
-        'style' => '/[a-zA-Z0-9_\-]*/',
-        'inline_css' => '/[a-zA-Z0-9_\-]*/',
-        'pygmentize' => '/[0-9a-zA-Z\-_\/]*\/pygmentize/'
-    );
-
     public static function highlight($raw_attrs, $thing='') {
-        $lang = jea_pygments_txp::get_and_validate('lang', $raw_attrs);
-        $file = jea_pygments_txp::get_and_validate('file', $raw_attrs);
-        $linenos= jea_pygments_txp::as_bool(jea_pygments_txp::get_and_validate('linenos', $raw_attrs));
-        $from = jea_pygments_txp::get_and_validate('from', $raw_attrs);
-        $to = jea_pygments_txp::get_and_validate('to', $raw_attrs);
-        $style = jea_pygments_txp::get_and_validate('style', $raw_attrs);
-        $inline_css = jea_pygments_txp::as_bool(jea_pygments_txp::get_and_validate('inline_css', $raw_attrs));
-        $pygmentize = jea_pygments_txp::get_and_validate('pygmentize');
+        $lang = jea_pygments_txp::get_valid('lang', $raw_attrs);
+        $file = jea_pygments_txp::get_valid('file', $raw_attrs);
+        $linenos= jea_pygments_txp::as_bool(jea_pygments_txp::get_valid('linenos', $raw_attrs));
+        $from = jea_pygments_txp::get_valid('from', $raw_attrs);
+        $to = jea_pygments_txp::get_valid('to', $raw_attrs);
+        $style = jea_pygments_txp::get_valid('style', $raw_attrs);
+        $inline_css = jea_pygments_txp::as_bool(jea_pygments_txp::get_valid('inline_css', $raw_attrs));
+        $pygmentize = jea_pygments_txp::get_valid('pygmentize');
 
         $o = '';
 
