@@ -192,7 +192,8 @@ class jea_highlight { // serves as namespace only
     }
 
     private static function snippet_filter_available() {
-        return stripos(shell_exec('pygmentize -L filters'), '* snippet') !== False;
+        $pygmentize = jea_pygments_txp::get_valid('pygmentize');
+        return stripos(shell_exec(escapeshellcmd("$pygmentize -L filters")), '* snippet') !== False;
     }
 
 }
