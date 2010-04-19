@@ -3,10 +3,14 @@
 /* interface */
 
 function jea_highlight($attrs, $thing='') {
-    return jea_highlight::highlight($attrs, $thing);
+    try {
+        return jea_highlight::highlight($attrs, $thing);
+    } catch (Exception $e) {
+        return '<p><pre>'.$e->getMessage().'</pre></p>';
+    }
 }
 
-/* installation */
+/* setup */
 
 if (@txpinterface == 'admin') {
     @require_plugin('soo_plugin_pref');
@@ -15,7 +19,7 @@ if (@txpinterface == 'admin') {
     register_callback('jea_pygments_txp_on_prefs', 'plugin_prefs.jea_pygments_txp');
 }
 
-/* default configuration */
+/* default configuration and utilities */
 
 class jea_pygments_txp {
 
@@ -67,9 +71,6 @@ class jea_pygments_txp {
         );
     }
 
-    /** Retrieves a parameter value from preferences / given array / defaults and
-     * validates its value. If it does not match the regular expression that describes the
-     * set of allowed words, an exception is raised. */
     public function get_valid($name, $attrs = NULL) {
         if ($attrs !== NULL && array_key_exists($name, $attrs)) {
             $val = $attrs[$name];
@@ -77,11 +78,25 @@ class jea_pygments_txp {
             $val = get_pref("jea_pygments_txp.$name", jea_pygments_txp::$defaults[$name]);
         }
 
-        if (jea_highlight::invalid($name, $val, jea_pygments_txp::$patterns[$name], $ret_msg)) {
-            throw new Exception($ret_msg);
-            return ''; // if exceptions don't work for whatever reason
-        } else {
+        if (jea_pygments_txp::valid($name, $val, $ret_msg)) {
             return $val;
+        } else {
+            throw new Exception($ret_msg);
+        }
+    }
+
+    private static function valid($name, $strval, &$ret_msg) {
+        if (array_key_exists($name, jea_pygments_txp::$patterns)) {
+            preg_match(jea_pygments_txp::$patterns[$name], $strval, $matches);
+            if (count($matches) == 0 || strlen($matches[0]) != strlen($strval)) {
+                $ret_msg = "<p>jea_pygments_txp: invalid value for attribute '$name' </p>";
+                return False;
+            } else {
+                return True;
+            }
+        } else {
+            $ret_msg = "<p>jea_pygments_txp: invalid attribute '$name'</p>";
+            return False;
         }
     }
 
@@ -124,7 +139,7 @@ function jea_pygments_txp_print_features() {
 
 /* highlight tag */
 
-class jea_highlight { // serves as namespace only
+class jea_highlight {
 
     public static function highlight($raw_attrs, $thing='') {
         $lang = jea_pygments_txp::get_valid('lang', $raw_attrs);
@@ -176,24 +191,13 @@ class jea_highlight { // serves as namespace only
         $cmd .= ' -O '.escapeshellarg("style=$style");
         $cmd .= ' '.escapeshellarg($path);
 
-        // print "<pre>$cmd</pre>";
         $o .= shell_exec($cmd);
         return $o;
     }
 
-    public static function invalid($description, $subject, $pattern, &$ret_msg) {
-        preg_match($pattern, $subject, $matches);
-        if (count($matches) == 0 || strlen($matches[0]) != strlen($subject)) {
-            $ret_msg = "<p>jea_highlight: invalid value for attribute '$description' </p>";
-            return True;
-        } else {
-            return False;
-        }
-    }
-
     private static function snippet_filter_available() {
         $pygmentize = jea_pygments_txp::get_valid('pygmentize');
-        return stripos(shell_exec(escapeshellcmd("$pygmentize -L filters")), '* snippet') !== False;
+        return stripos(shell_exec("$pygmentize -L filters"), '* snippet') !== False;
     }
 
 }
