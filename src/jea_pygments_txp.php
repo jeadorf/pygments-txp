@@ -24,13 +24,10 @@ if (@txpinterface == 'admin') {
 class jea_pygments_txp {
 
     public static $defaults = array(
-        'from' => '1',
         'inline_css' => '1',
-        'lang' => '',
         'linenos' => '0',
         'pygmentize' => '/usr/bin/pygmentize',
         'style' => 'default',
-        'to' => '65536'
     );
 
     public static $patterns = array(
@@ -114,10 +111,10 @@ class jea_pygments_txp {
 
     public static function subprocess($cmd, $input) {
         $dspec = array(
-            0 => array("pipe", "r"), // stdin 
-            1 => array("pipe", "w")  // stdout 
+            0 => array("pipe", "r"), // stdin
+            1 => array("pipe", "w")  // stdout
         );
-        $p = proc_open($cmd, $dspec, $pipes, NULL, NULL); 
+        $p = proc_open($cmd, $dspec, $pipes, NULL, NULL);
         if (is_resource($p)) {
             fwrite($pipes[0], $input);
             fclose($pipes[0]);
@@ -181,17 +178,7 @@ class jea_highlight {
 
         $cmd = escapeshellcmd($pygmentize);
         $cmd .= ' -f html';
-        if (strcmp($lang, '') != 0) {
-            $cmd .= ' -l '.escapeshellarg($lang);
-        }
-        if (strcmp($from, '1') != 0 || strcmp($to, ''.PHP_INT_MAX) != 0) {
-            if (jea_highlight::snippet_filter_available()) {
-                $cmd .= ' -F '.escapeshellarg("snippet:fromline=$from,toline=$to");
-                $cmd .= ' -O '.escapeshellarg("linenostart=$from");
-            } else {
-                throw new Exception("<p>jea_pygments_txp: pygments-snippet-filter not installed.</p>");
-            }
-        }
+
         if ($linenos) {
             $cmd .= ' -O linenos=inline';
         }
@@ -210,14 +197,43 @@ class jea_highlight {
         $cmd .= ' -O '.escapeshellarg("cssclass=jea_pygments_txp_$style");
         $cmd .= ' -O '.escapeshellarg("style=$style");
 
+        if ($lang === NULL && $file !== NULL) {
+            $lang = jea_highlight::guess_lexer($file);
+        }
+
+        if ($lang === NULL) {
+            // guess language from content
+            $cmd .= ' -g';
+        } else {
+            $cmd .= ' -l '.escapeshellarg($lang);
+        }
+
         if ($file !== NULL) {
             global $txpcfg;
             $path = dirname($txpcfg['txpath']) . '/files/' . $file;
             if (!file_exists($path)) {
                 throw new Exception("<p>jea_pygments_txp: File '$file' does not exist.</p>");
             }
-            $cmd .= ' '.escapeshellarg($path);
+            $thing = file_get_contents($path);
         }
+
+        if ($from !== NULL || $from !== '1' || $to !== NULL) {
+            $lines = explode("\n", $thing);
+            if ($from === NULL) {
+                $f = 0;
+            } else {
+                $f = max(0, intval($from) - 1);
+            }
+            if ($to === NULL) {
+                $t = count($lines);
+            } else {
+                $t = min(count($lines), intval($to));
+            }
+            $lines = array_slice($lines, $f, $t - $f);
+            $thing = implode("\n", $lines);
+            $cmd .= ' -O '.escapeshellarg('linenostart='.strval($f+1));
+        }
+
         $o .= jea_pygments_txp::subprocess($cmd, $thing);
         return $o;
     }

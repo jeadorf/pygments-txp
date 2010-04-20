@@ -11,9 +11,6 @@ h2. Installation
 
 h3. Optional dependencies
 
-* Support for showing parts of a file:
-    Install the "pygments-snippet-filter":http://bitbucket.org/jeadorf/pygments-snippet-filter
-    plugin for pygments on your webserver
 * Support for customization:
     Install textpattern plugin "soo_plugin_pref":http://ipsedixit.net/txp/92/soo_plugin_pref
 
@@ -41,14 +38,12 @@ It supports the following parameters:
     underscores, dots, and hyphens. Files must not begin with a dot.
 * *linenos* - Enables line numbers if set to 'true'. Corresponds to Pygments'
     linenos=inline option.
-* *from* - The first line to be displayed. This only works if the
-    pygments-snippet-filter plugin is installed on your server.
-* *to* - This line and all lines beyond are not displayed. This only works if
-    the pygments-snippet-filter plugin is installed on your server.
+* *from* - The first line to display. 
+* *to* - The last line to display.
 * *lang* - Specifies the language of the code to embed. If not given
-    Pygments tries to guess the language by looking at the file name. This
-    parameter is mandatory if no file is specified. Find out with 'pygmentize
-    -L lexers' or go to plugin options to see what languages are available.
+    Pygments tries to guess the language by looking at the file name or even at
+    the content (which might fail). Find out with 'pygmentize -L lexers' or go
+    to plugin options to see what languages are available.
 
 You can also embed and highlight code directly in articles. Therefore, simply wrap the code to highlight
 like this:
@@ -91,7 +86,4 @@ tab and change the default values for most of the parameters used by the
 h2. Known issues
 
 * styles should be listed in a drop-box on the preferences panel
-* there is missing a language parameter that explicitly sets a language,
-  currently the language is guessed from the file name. If there is no
-  guess, nothing is shown.
 
