@@ -10,6 +10,12 @@ plugin:
 plugin-sql:
 	@php -f src/plugin_util.php sql
 
+.PHONY: test
+test:
+	cd test && phpunit --verbose validation_test.php
+	cd test && phpunit --verbose highlight_test.php
+	cd test && phpunit --verbose guess_lexer_test.php
+
 # Workaround to avoid shell and Makefile $txpcfg expansion
 t=$$t
 

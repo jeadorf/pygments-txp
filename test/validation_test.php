@@ -5,12 +5,12 @@ require_once('../src/jea_pygments_txp.php');
 
 class ValidationTest extends PHPUnit_Framework_TestCase {
 
-    /** @dataProvider validationTestData */
+    /** @dataProvider validation_test_data */
     function test_valid($name, $strval, $valid) {
         $this->assertEquals($valid, jea_pygments_txp::valid($name, $strval, $ret_msg));
     }
 
-    function validationTestData() {
+    function validation_test_data() {
         return array(
             /* file positives */
             array('file', 'plugin.php', True),

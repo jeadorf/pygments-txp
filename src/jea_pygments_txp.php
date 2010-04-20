@@ -222,6 +222,12 @@ class jea_highlight {
         return $o;
     }
 
+    public static function guess_lexer($file) {
+        $pygmentize = jea_pygments_txp::get_valid('pygmentize');
+        return trim(shell_exec("$pygmentize -N ".escapeshellarg($file)));
+    }
+
+
     private static function snippet_filter_available() {
         $pygmentize = jea_pygments_txp::get_valid('pygmentize');
         return stripos(shell_exec("$pygmentize -L filters"), '* snippet') !== False;

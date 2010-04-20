@@ -2,20 +2,13 @@
 
 require_once('PHPUnit/Framework.php');
 require_once('../src/jea_pygments_txp.php');
-
-/* mock overrides */
-
-$txpcfg['txpath'] = '.';
-
-function get_pref($str, $defaultval) {
-    return $defaultval;
-}
+require_once('mock.php');
 
 /* test case */
 
 class HighlightTest extends PHPUnit_Framework_TestCase {
 
-    /** @dataProvider highlightTestData */
+    /** @dataProvider highlight_test_data */
     function test_highlight($attrs, $thing, $words, $nowords = array()) {
         try {
             $out = jea_highlight::highlight($attrs, $thing);
@@ -31,7 +24,7 @@ class HighlightTest extends PHPUnit_Framework_TestCase {
         }
     }
 
-    function highlightTestData() {
+    function highlight_test_data() {
         return array(
             // test case with code in tag content
             array(
@@ -57,6 +50,12 @@ class HighlightTest extends PHPUnit_Framework_TestCase {
                 array('file' => 'doesnotexist'),
                 '',
                 array('does', 'doesnotexist', 'not', 'exist'),
+           ),
+           // test case with style
+           array(
+                array('file' => 'test.py', 'style' => 'native'),
+                '',
+                array('class=', 'jea_pygments_txp_native', 'hypotenuse')
            )
         );
     }
