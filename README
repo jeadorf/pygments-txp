@@ -55,7 +55,9 @@ def hypotenuse(a, b):
 
 The 'notextile' tags ensure that textpattern will not process the tag content using
 the textile markup generation engine. Be careful though, if you try to highlight
-textile markup that contains 'notextile' tags itself!
+textile markup that contains 'notextile' tags itself! And do not include any whitespace
+between the 'notextile' and the 'txp:jea_highlight' tags. If in doubt, highlight 
+code using the 'file' attribute.
 
 h3. Examples
 
@@ -68,7 +70,7 @@ h3. Customization
 
 The plugin can be customized in several ways. You can go to the plugin options
 tab and change the default values for most of the parameters used by the
-&lt;txp:jea_highlight /&gt tag.
+'txp:jea_highlight' tag.
 
 * *Pygmentize script location* - Specify the location of your pygmentize script
     that is shipped with Pygments. Note that for security reasons the script's file
@@ -80,10 +82,13 @@ tab and change the default values for most of the parameters used by the
     of class names. Use this if you do not plan to include an extra style sheet
     to format the highlighted code.
 
-* *Highlighting style* - There are several predefined styles available. Find out
-    with 'pygmentize -L styles' what styles are available.
+* *Highlighting style* - There are several predefined styles available. Find
+   out with 'pygmentize -L styles' what styles are available, or look in the
+   plugin options.
 
 h2. Known issues
 
 * styles should be listed in a drop-box on the preferences panel
+* caching should make things go faster
+* character encoding not thorougly tested
 

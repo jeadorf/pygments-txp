@@ -200,9 +200,7 @@ class jea_highlight {
         if ($lang === NULL && $file !== NULL) {
             $lang = jea_highlight::guess_lexer($file);
         }
-
         if ($lang === NULL) {
-            // guess language from content
             $cmd .= ' -g';
         } else {
             $cmd .= ' -l '.escapeshellarg($lang);
@@ -234,6 +232,8 @@ class jea_highlight {
             $cmd .= ' -O '.escapeshellarg('linenostart='.strval($f+1));
         }
 
+        $cmd .= ' -O '.escapeshellarg('encoding=iso-8859-1');
+
         $o .= jea_pygments_txp::subprocess($cmd, $thing);
         return $o;
     }
@@ -241,12 +241,6 @@ class jea_highlight {
     public static function guess_lexer($file) {
         $pygmentize = jea_pygments_txp::get_valid('pygmentize');
         return trim(shell_exec("$pygmentize -N ".escapeshellarg($file)));
-    }
-
-
-    private static function snippet_filter_available() {
-        $pygmentize = jea_pygments_txp::get_valid('pygmentize');
-        return stripos(shell_exec("$pygmentize -L filters"), '* snippet') !== False;
     }
 
 }
