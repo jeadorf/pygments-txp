@@ -218,7 +218,6 @@ class jea_highlight {
             }
             $cmd .= ' '.escapeshellarg($path);
         }
-
         $o .= jea_pygments_txp::subprocess($cmd, $thing);
         return $o;
     }
