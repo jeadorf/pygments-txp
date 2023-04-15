@@ -68,7 +68,7 @@ class jea_pygments_txp {
         );
     }
 
-    public function get_valid($name, $attrs = NULL) {
+    public static function get_valid($name, $attrs = NULL) {
         if ($attrs !== NULL && array_key_exists($name, $attrs)) {
             $val = $attrs[$name];
         } else {
