@@ -232,8 +232,6 @@ class jea_highlight {
             $cmd .= ' -O '.escapeshellarg('linenostart='.strval($f+1));
         }
 
-        $cmd .= ' -O '.escapeshellarg('encoding=iso-8859-1');
-
         $o .= jea_pygments_txp::subprocess($cmd, $thing);
         return $o;
     }
